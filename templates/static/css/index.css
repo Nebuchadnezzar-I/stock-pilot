@@ -1,0 +1,16 @@
+:root {
+    --background: oklch(0.15 0.01 250);
+    --foreground: oklch(0.92 0.01 95);
+}
+
+a, h1, h2, h3, h4, h5, h6, input, button {
+    margin: 0;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    color: var(--foreground);
+    background: var(--background);
+    font-family: "Ubuntu Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
