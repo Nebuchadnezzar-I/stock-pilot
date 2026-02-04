@@ -1,6 +1,9 @@
 ## StockPilot
 
-- [ ] Fix tera (use nested handling home -> current ..)
+### Feb.4
+- [x] Fix tera (use nested handling home -> current ..)
+- [x] Build navigation + basic pages for starter
+
 - [ ] Design - POC DB design
 - [ ] Add DieselRS
 - [ ] Create Sqlite migrations

@@ -1,0 +1,22 @@
+{% block navigation %}
+
+<a href="/orders"
+   class="{% if location == "orders" %}active{% endif %}">
+    Orders
+</a>
+
+<a href="/warehouse"
+   class="{% if location == "warehouse" %}active{% endif %}">
+    Warehouse
+</a>
+
+<a href="/admin"
+   class="{% if location == "admin" %}active{% endif %}">
+    Admin
+</a>
+
+<a href="/logout">
+    Logout
+</a>
+
+{% endblock navigation %}
