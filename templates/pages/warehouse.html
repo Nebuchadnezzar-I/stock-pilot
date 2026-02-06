@@ -1,4 +1,9 @@
-{% extends "root.html" %}
+{% extends "index.html" %}
+
+{% block header %}
+    <link rel="stylesheet" href="static/css/warehouse.css">
+{% endblock header %}
+
 
 {% block navigation %}
     {% set location = "warehouse" -%}
@@ -6,5 +11,37 @@
 {% endblock navigation %}
 
 {% block content %}
-<h1>Warehouse!</h1>
+<div class="ws-layout">
+    <div class="left-section">
+        <div class="ws-search">
+            <input
+                name="query"
+                placeholder="Search type"
+                hx-get="warehouse/equipment-types"
+                hx-trigger="keyup changed delay:500ms"
+                hx-target=".type-list"
+                hx-swap="innerHTML"/>
+
+            <button
+                hx-get="/warehouse/equipment-type/new"
+                hx-target="#right-section"
+                hx-swap="innerHTML"
+            >+</button>
+        </div>
+
+        <div
+            hx-get="warehouse/equipment-types"
+            hx-trigger="load, equipmentTypeCreated from:body"
+            hx-swap="innerHTML"
+            class="type-list">
+            <p class="loading">Loading ...</p>
+        </div>
+    </div>
+
+    <div id="right-section" class="right-section">
+        <div class="default">
+            <p class="title">Nothing is selected.</p>
+        </div>
+    </div>
+</div>
 {% endblock content %}

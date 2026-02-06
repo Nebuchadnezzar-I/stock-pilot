@@ -2,19 +2,37 @@
     --background: oklch(0.15 0.01 250);
     --foreground: oklch(0.92 0.01 95);
     --foreground-secondary: oklch(0.78 0.02 95);
+    --border-light: oklch(0.18 0.01 250);
     --border: oklch(0.23 0.01 250);
 }
 
-a, h1, h2, h3, h4, h5, h6, input, button {
+* {
+    box-sizing: border-box;
+}
+
+*:focus, *:focus-visible, *:focus-within {
+    background: var(--background);
+}
+
+a, p, h1, h2, h3, h4, h5, h6, input, button {
+    font-family: "Ubuntu Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    box-sizing: border-box;
     margin: 0;
 }
 
-body {
-    margin: 0;
-    padding: 0;
-    color: var(--foreground);
+html {
+    height: 100dvh;
     background: var(--background);
+}
+
+body {
     font-family: "Ubuntu Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    color: var(--foreground);
+
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 /* Navigation */
@@ -23,9 +41,11 @@ body {
     align-items: center;
     justify-content: space-between;
 
+    width: 100%;
     height: 4rem;
     padding: 0 3rem 0 3rem;
     border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
 
     .title {
         font-size: 1.125rem;

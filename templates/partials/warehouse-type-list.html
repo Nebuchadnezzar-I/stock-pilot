@@ -1,0 +1,9 @@
+{% for item in items %}
+<div
+    hx-get="/warehouse/equipment-types/{{ item.id }}"
+    hx-target="#right-section"
+    hx-swap="innerHTML"
+    class="type-item">
+    <p>{{ item.name }}</p>
+</div>
+{% endfor %}
