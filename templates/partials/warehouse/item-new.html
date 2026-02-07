@@ -1,0 +1,25 @@
+<form
+    hx-post="warehouse/equipment-item/new"
+    hx-target="this"
+    hx-swap="outerHTML"
+    class="item-new form-new">
+
+    <div class="input">
+        <input 
+            required
+            type="hidden"
+            name="type_id"
+            value="{{ type_id }}" />
+
+        <input
+            required
+            type="text"
+            name="serial"
+            class="common-input"
+            placeholder="Serial number"  />
+    </div>
+
+    <button class="common-button" type="submit">
+        Create
+    </button>
+</form>

@@ -1,16 +1,6 @@
-use std::env;
-
-use actix_web::HttpRequest;
 use diesel::{Connection, SqliteConnection};
 use dotenvy::dotenv;
-
-pub fn is_htmx(req: &HttpRequest) -> bool {
-    req.headers()
-        .get("HX-Request")
-        .and_then(|v| v.to_str().ok())
-        .map(|v| v == "true")
-        .unwrap_or(false)
-}
+use std::env;
 
 pub fn establish_connection() -> SqliteConnection {
     dotenv().ok();

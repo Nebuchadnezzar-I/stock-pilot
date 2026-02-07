@@ -15,14 +15,6 @@ pub struct DispatchItem {
     pub return_condition: Option<String>,
 }
 
-#[derive(Insertable)]
-#[diesel(table_name = dispatch_item)]
-pub struct NewDispatchItem {
-    pub order_line_id: i32,
-    pub equipment_item_id: i32,
-    pub loaded_at: i32,
-}
-
 #[derive(Serialize, Deserialize)]
 #[derive(Debug, Queryable, Identifiable, Associations)]
 #[diesel(table_name = equipment_item)]
@@ -30,13 +22,6 @@ pub struct NewDispatchItem {
 pub struct EquipmentItem {
     pub id: i32,
     pub serial: String,
-    pub type_id: i32,
-}
-
-#[derive(Insertable)]
-#[diesel(table_name = equipment_item)]
-pub struct NewEquipmentItem<'a> {
-    pub serial: &'a str,
     pub type_id: i32,
 }
 
@@ -48,23 +33,11 @@ pub struct EquipmentType {
     pub name: String,
 }
 
-#[derive(Insertable)]
-#[diesel(table_name = equipment_type)]
-pub struct NewEquipmentType<'a> {
-    pub name: &'a str,
-}
-
 #[derive(Debug, Queryable, Identifiable)]
 #[diesel(table_name = orders)]
 pub struct Order {
     pub id: i32,
     pub tag: String,
-}
-
-#[derive(Insertable)]
-#[diesel(table_name = orders)]
-pub struct NewOrder<'a> {
-    pub tag: &'a str,
 }
 
 #[derive(Debug, Queryable, Identifiable, Associations)]
@@ -77,12 +50,3 @@ pub struct OrderLine {
     pub equipment_type_id: i32,
     pub equipment_count: i32,
 }
-
-#[derive(Insertable)]
-#[diesel(table_name = order_line)]
-pub struct NewOrderLine {
-    pub order_id: i32,
-    pub equipment_type_id: i32,
-    pub equipment_count: i32,
-}
-

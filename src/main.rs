@@ -1,4 +1,4 @@
-use actix_web::{App, HttpServer, web};
+use actix_web::{App, HttpServer, guard, web};
 use actix_files::Files;
 use tera::{Tera};
 
@@ -32,11 +32,23 @@ async fn main() -> std::io::Result<()> {
             .app_data(state.clone())
             .service(web::scope("/warehouse")
                 .service(handlers::warehouse::index)
-                .service(handlers::warehouse::equipment_type_new_form)
-                .service(handlers::warehouse::get_equipment_type)
-                .service(handlers::warehouse::create_equipment_type)
-                .service(handlers::warehouse::query_equipment_types))
-
+                .service(web::scope("")
+                    .guard(guard::Header("HX-Request", "true"))
+                    .service(handlers::warehouse::form_new_equipment_item) // Items
+                    .service(handlers::warehouse::search_equipment_items)
+                    .service(handlers::warehouse::create_equipment_item)
+                    .service(handlers::warehouse::form_remove_equipment_item)
+                    .service(handlers::warehouse::delete_equipment_item)
+                    .service(handlers::warehouse::form_update_equipment_item)
+                    .service(handlers::warehouse::update_equipment_item)
+                    .service(handlers::warehouse::form_new_equipment_type) // Types
+                    .service(handlers::warehouse::get_equipment_type_select)
+                    .service(handlers::warehouse::search_equipment_types)
+                    .service(handlers::warehouse::search_equipment_types)
+                    .service(handlers::warehouse::create_equipment_type)
+                    .service(handlers::warehouse::form_remove_equipment_type)
+                    .service(handlers::warehouse::delete_equipment_type)))
+                
             .service(handlers::orders::index)
             .service(handlers::admin::index)
             .service(handlers::other::index)

@@ -1,0 +1,22 @@
+{% for item in items %}
+<div class="item item-item">
+    <div 
+        hx-get="/warehouse/equipment-item/update/{{ item.id }}"
+        hx-target="#right-section"
+        hx-swap="innerHTML"
+        class="title">
+        <p>{{ item.serial }}</p>
+    </div>
+
+    <button
+        hx-get="/warehouse/equipment-item/remove/{{ item.id }}"
+        hx-target="#right-section"
+        hx-swap="innerHTML"
+        class="common-button"
+    >-</button>
+</div>
+{% else %}
+<div class="loading">
+    No equipment items found.
+</div>
+{% endfor %}
