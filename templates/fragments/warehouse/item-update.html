@@ -1,0 +1,24 @@
+<form
+    hx-post="warehouse/store/item-update"
+    hx-target="this"
+    hx-swap="outerHTML"
+    class="item-update">
+
+    <div class="header">
+        <input
+            type="hidden"
+            name="id"
+            value="{{ item.id }}" />
+
+        <input
+            required
+            type="text"
+            name="serial"
+            value="{{ item.serial }}"
+            placeholder="Type name"  />
+    </div>
+
+    <button type="submit" class="background-size-button">
+        Update
+    </button>
+</form>

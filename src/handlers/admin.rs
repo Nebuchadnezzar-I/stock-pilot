@@ -1,15 +1,23 @@
-use actix_web::{HttpResponse, get, web};
-use crate::AppState;
+pub mod admin {
+    pub mod routes {
+        use crate::handlers::prelude::*;
+        use tera::Tera;
 
-static ADMIN_TEMPLATE: &'static str = "pages/admin.html";
+        pub async fn index(tera: web::Data<Tera>) -> HttpResponse {
+            let page = tera.render("pages/admin.html",
+                &Context::new()).unwrap();
 
-#[get("/admin")]
-async fn index(data: web::Data<AppState>) -> HttpResponse {
-    let page = data.tera.render(ADMIN_TEMPLATE,
-        &tera::Context::new())
-        .unwrap();
+            return HttpResponse::Ok()
+                .content_type("text/html")
+                .body(page);
+        }
+    }
 
-    return HttpResponse::Ok()
-        .content_type("text/html")
-        .body(page);
+    pub mod fragments {
+        // use crate::handlers::prelude::*;
+    }
+
+    pub mod actions {
+        // use crate::handlers::prelude::*;
+    }
 }

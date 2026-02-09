@@ -1,11 +1,11 @@
 <form
-    hx-post="warehouse/equipment-item/new"
+    hx-post="warehouse/store/item-create"
     hx-target="this"
     hx-swap="outerHTML"
-    class="item-new form-new">
+    class="item-new">
 
-    <div class="input">
-        <input 
+    <div class="header">
+        <input
             required
             type="hidden"
             name="type_id"
@@ -15,11 +15,10 @@
             required
             type="text"
             name="serial"
-            class="common-input"
             placeholder="Serial number"  />
     </div>
 
-    <button class="common-button" type="submit">
+    <button type="submit" class="background-size-button">
         Create
     </button>
 </form>

@@ -1,0 +1,24 @@
+{% for type in types %}
+
+<div
+    hx-get="warehouse/fragment/type-select/{{ type.id }}"
+    hx-target="#secondary"
+    hx-swap="innerHTML"
+    class="name background-size-button">
+    <p>{{ type.name }}</p>
+</div>
+
+<button
+    hx-get="warehouse/fragment/type-delete/{{ type.id }}"
+    hx-target="#secondary"
+    hx-swap="innerHTML"
+    class="background-size-button">
+-</button>
+
+{% else %}
+
+<div class="not-found">
+    No equipment types found.
+</div>
+
+{% endfor %}

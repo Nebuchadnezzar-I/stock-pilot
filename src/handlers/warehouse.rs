@@ -1,466 +1,567 @@
-use crate::{AppState, helpers::establish_connection, models::{EquipmentItem, EquipmentType}};
-use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl, TextExpressionMethods, dsl::{delete, update}, insert_into};
-use actix_web::{HttpResponse, get, post, web};
-use serde::{Deserialize, Serialize};
-use tera::Context;
+pub mod warehouse {
+    pub mod routes {
+        use crate::handlers::prelude::*;
 
-use crate::schema;
+        pub async fn index(tera: web::Data<Tera>) -> HttpResponse {
+            let page = tera.render("pages/warehouse.html",
+                &Context::new()).unwrap();
 
-//
-// Page
-//
-
-#[get("")]
-async fn index(app: web::Data<AppState>) -> HttpResponse {
-    let context = Context::new();
-    let page = app.tera.render("pages/warehouse.html",
-        &context).unwrap();
-
-    return HttpResponse::Ok()
-        .content_type("text/html")
-        .body(page);
-}
-
-//
-// Page
-//
-
-//
-// Fragments
-//
-
-// Items
-
-#[get("/equipment-item/remove/{item_id}")]
-async fn form_remove_equipment_item(
-    item_id: web::Path<i32>,
-    data: web::Data<AppState>
-) -> HttpResponse {
-    let mut context = Context::new();
-    context.insert("item_id", &item_id.to_owned());
-    let page = data.tera.render(
-        "partials/warehouse/item-delete.html", 
-        &context).unwrap();
-
-    return HttpResponse::Ok()
-        .content_type("text/html")
-        .body(page);
-}
-
-#[get("/equipment-item/new/{type_id}")]
-async fn form_new_equipment_item(
-    type_id: web::Path<i32>,
-    data: web::Data<AppState>
-) -> HttpResponse {
-    let mut context = Context::new();
-    context.insert("type_id", &type_id.to_owned());
-    let page = data.tera.render(
-        "partials/warehouse/item-new.html", 
-        &context).unwrap();
-
-    return HttpResponse::Ok()
-        .content_type("text/html")
-        .body(page);
-}
-
-#[get("/equipment-item/update/{item_id}")]
-async fn form_update_equipment_item(
-    item_id: web::Path<i32>,
-    data: web::Data<AppState>
-) -> HttpResponse {
-    let item = web::block(move || {
-        use schema::equipment_item::dsl::*;
-
-        let mut connection = establish_connection();
-
-        return equipment_item
-            .filter(id.eq(&item_id.to_owned()))
-            .first::<EquipmentItem>(&mut connection)
-            .unwrap()
-    }).await.unwrap();
-
-    let mut context = Context::new();
-    context.insert("item_id", &item.id);
-    context.insert("serial", &item.serial);
-    let page = data.tera.render(
-        "partials/warehouse/item-update.html", 
-        &context).unwrap();
-
-    return HttpResponse::Ok()
-        .content_type("text/html")
-        .body(page);
-}
-
-#[get("/equipment-items/{type_id}")]
-async fn search_equipment_items(
-    type_id: web::Path<i32>,
-    data: web::Data<AppState>,
-) -> HttpResponse {
-    let items = web::block(move || {
-        use schema::equipment_item::dsl::{
-            equipment_item, type_id as type_id_col
-        };
-
-        let mut connection = establish_connection();
-
-        return equipment_item
-            .filter(type_id_col.eq(&type_id.to_owned()))
-            .load::<EquipmentItem>(&mut connection)
-            .unwrap()
-    }).await.unwrap();
-
-    let mut context = Context::new();
-    context.insert("items", &items);
-    let page = data.tera.render(
-        "partials/warehouse/item-list.html", 
-        &context).unwrap();
-
-    HttpResponse::Ok()
-        .content_type("text/html")
-        .body(page)
-}
-
-// Types
-
-#[get("/equipment-type/remove/{type_id}")]
-async fn form_remove_equipment_type(
-    type_id: web::Path<i32>,
-    data: web::Data<AppState>
-) -> HttpResponse {
-    let mut context = Context::new();
-    context.insert("type_id", &&type_id.to_owned());
-    let page = data.tera.render(
-        "partials/warehouse/type-delete.html", 
-        &context).unwrap();
-
-    return HttpResponse::Ok()
-        .content_type("text/html")
-        .body(page);
-}
-
-#[get("/equipment-type/new")]
-async fn form_new_equipment_type(
-    app: web::Data<AppState>
-) -> HttpResponse {
-    let context = Context::new();
-    let page = app.tera.render(
-        "partials/warehouse/type-new.html", 
-        &context).unwrap();
-
-    return HttpResponse::Ok()
-        .content_type("text/html")
-        .body(page);
-}
-
-#[get("/equipment-type/select/{type_id}")]
-async fn get_equipment_type_select(
-    type_id: web::Path<i32>,
-    data: web::Data<AppState>,
-) -> HttpResponse {
-    let info = web::block(move || {
-        let mut connection = establish_connection();
-        use schema::equipment_type::dsl::{
-            equipment_type, id as t_id
-        };
-
-        return equipment_type
-            .filter(t_id.eq(type_id.to_owned()))
-            .first::<EquipmentType>(&mut connection)
-            .unwrap();
-    }).await.unwrap();
-
-    let mut context = Context::new();
-    context.insert("id", &info.id);
-    context.insert("name", &info.name);
-    let page = data.tera.render(
-        "partials/warehouse/type-select.html", 
-        &context).unwrap();
-
-    HttpResponse::Ok()
-        .content_type("text/html")
-        .body(page)
-}
-
-#[allow(dead_code)]
-#[derive(Deserialize)]
-struct EquipmentTypeSearch {
-    query: Option<String>,
-}
-
-#[get("/equipment-types")]
-async fn search_equipment_types(
-    query: web::Query<EquipmentTypeSearch>,
-    data: web::Data<AppState>,
-) -> HttpResponse {
-    let query = query.query.clone().unwrap_or_default();
-
-    let types = web::block(move || {
-        use schema::equipment_type::dsl::*;
-
-        let mut connection = establish_connection();
-
-        if !query.is_empty() {
-            equipment_type
-                .filter(name.like(format!("%{}%", &query)))
-                .load::<EquipmentType>(&mut connection)
-                .unwrap()
-        } else {
-            equipment_type
-                .load::<EquipmentType>(&mut connection)
-                .unwrap()
+            return HttpResponse::Ok()
+                .content_type("text/html")
+                .body(page);
         }
-    }).await.unwrap();
+    }
 
-    let mut context = Context::new();
-    context.insert("types", &types);
-    let page = data.tera.render(
-        "partials/warehouse/type-list.html", 
-        &context).unwrap();
+    pub mod fragments {
+        use crate::handlers::prelude::*;
+        use crate::database::{database::DbPool, models::{EquipmentType, EquipmentItem}};
 
-    HttpResponse::Ok()
-        .content_type("text/html")
-        .body(page)
-}
-
-//
-// Fragments
-//
-
-//
-// Actions
-//
-
-#[allow(dead_code)]
-#[derive(Serialize, Deserialize, Debug)]
-struct EquipmentTypeDeletion {
-    id: i32,
-}
-
-#[post("/equipment-type/delete")]
-async fn delete_equipment_type(
-    form: web::Form<EquipmentTypeDeletion>,
-    data: web::Data<AppState>
-) -> HttpResponse {
-    let result = web::block(move || {
-        let mut connection = establish_connection();
-        use schema::equipment_type::dsl::*;
-
-        delete(equipment_type)
-            .filter(id.eq(&form.id))
-            .execute(&mut connection)
-    }).await.unwrap();
-
-    let mut context = Context::new();
-    let page = match result {
-        Ok(_) => {
-            context.insert("success", "Type was deleted.");
-            data.tera.render("partials/success.html", &context).unwrap()
+        #[derive(Deserialize, Serialize)]
+        pub struct SearchQuery {
+            query: Option<String>,
         }
 
-        Err(_) => {
-            context.insert("error", "Type could not be deleted.");
-            data.tera.render("partials/error.html", &context).unwrap()
+        pub async fn search(
+            query: web::Query<SearchQuery>,
+            pool: web::Data<DbPool>,
+            tera: web::Data<Tera>
+        ) -> HttpResponse {
+            let found_types = web::block(move || {
+                use crate::database::schema::equipment_type::dsl::*;
+                let query = &query.query.clone().unwrap_or_default();
+
+                let mut connection = pool.get()
+                    .expect("Could not get connection from pool!");
+
+                if query.is_empty() {
+                return equipment_type
+                    .load::<EquipmentType>(&mut connection)
+                    .unwrap();
+                }
+
+                return equipment_type
+                    .filter(name.like(format!("%{}%", query)))
+                    .load::<EquipmentType>(&mut connection)
+                    .unwrap();
+
+            }).await.unwrap();
+
+            let mut context = Context::new();
+            context.insert("types", &found_types);
+
+            let page = tera.render(
+                "fragments/warehouse/type-list.html",
+                &context).unwrap();
+
+            return HttpResponse::Ok()
+                .content_type("text/html")
+                .body(page);
         }
-    };
 
-    match result {
-        Ok(_) => HttpResponse::Ok()
-            .append_header(("HX-Trigger", "equipmentTypesChanged"))
-            .content_type("text/html")
-            .body(page),
+        pub async fn type_new(
+            tera: web::Data<Tera>
+        ) -> HttpResponse {
+            let page = tera.render(
+                "fragments/warehouse/type-new.html",
+                &Context::new()).unwrap();
 
-        Err(_) => HttpResponse::UnprocessableEntity()
-            .content_type("text/html")
-            .body(page),
+            return HttpResponse::Ok()
+                .content_type("text/html")
+                .body(page);
+        }
+
+        pub async fn item_new(
+            type_id: web::Path<i32>,
+            tera: web::Data<Tera>
+        ) -> HttpResponse {
+            let mut context = Context::new();
+            context.insert("type_id", &type_id.clone());
+
+            let page = tera.render(
+                "fragments/warehouse/item-new.html",
+                &context).unwrap();
+
+            return HttpResponse::Ok()
+                .content_type("text/html")
+                .body(page);
+        }
+
+        pub async fn item_update(
+            item_id: web::Path<i32>,
+            pool: web::Data<DbPool>,
+            tera: web::Data<Tera>
+        ) -> HttpResponse {
+            let item_info = web::block(move || {
+                use crate::database::schema::equipment_item::dsl::*;
+
+                let mut connection = pool.get()
+                    .expect("Could not get connection from pool!");
+
+                return equipment_item
+                    .filter(id.eq(item_id.clone()))
+                    .first::<EquipmentItem>(&mut connection)
+                    .unwrap();
+
+            }).await.unwrap();
+
+            let mut context = Context::new();
+            context.insert("item", &item_info);
+
+            let page = tera.render(
+                "fragments/warehouse/item-update.html",
+                &context).unwrap();
+
+            return HttpResponse::Ok()
+                .content_type("text/html")
+                .body(page);
+        }
+
+        pub async fn type_delete(
+            type_id: web::Path<i32>,
+            pool: web::Data<DbPool>,
+            tera: web::Data<Tera>
+        ) -> HttpResponse {
+            let type_info = web::block(move || {
+                use crate::database::schema::equipment_type::dsl::*;
+
+                let mut connection = pool.get()
+                    .expect("Could not get connection from pool!");
+
+                return equipment_type
+                    .filter(id.eq(type_id.clone()))
+                    .first::<EquipmentType>(&mut connection)
+                    .unwrap();
+
+            }).await.unwrap();
+
+            let mut context = Context::new();
+            context.insert("type", &type_info);
+
+            let page = tera.render(
+                "fragments/warehouse/type-delete.html",
+                &context).unwrap();
+
+            return HttpResponse::Ok()
+                .content_type("text/html")
+                .body(page);
+        }
+
+        pub async fn type_select(
+            type_id: web::Path<i32>,
+            pool: web::Data<DbPool>,
+            tera: web::Data<Tera>
+        ) -> HttpResponse {
+            let type_info = web::block(move || {
+                use crate::database::schema::equipment_type::dsl::*;
+
+                let mut connection = pool.get()
+                    .expect("Could not get connection from pool!");
+
+                return equipment_type
+                    .filter(id.eq(type_id.clone()))
+                    .first::<EquipmentType>(&mut connection)
+                    .unwrap();
+
+            }).await.unwrap();
+
+            let mut context = Context::new();
+            context.insert("type", &type_info);
+
+            let page = tera.render(
+                "fragments/warehouse/type-select.html",
+                &context).unwrap();
+
+            return HttpResponse::Ok()
+                .content_type("text/html")
+                .body(page);
+        }
+
+        pub async fn type_update(
+            type_id: web::Path<i32>,
+            pool: web::Data<DbPool>,
+            tera: web::Data<Tera>
+        ) -> HttpResponse {
+            let type_info = web::block(move || {
+                use crate::database::schema::equipment_type::dsl::*;
+
+                let mut connection = pool.get()
+                    .expect("Could not get connection from pool!");
+
+                return equipment_type
+                    .filter(id.eq(type_id.clone()))
+                    .first::<EquipmentType>(&mut connection)
+                    .unwrap();
+
+            }).await.unwrap();
+
+            let mut context = Context::new();
+            context.insert("type", &type_info);
+
+            let page = tera.render(
+                "fragments/warehouse/type-update.html",
+                &context).unwrap();
+
+            return HttpResponse::Ok()
+                .content_type("text/html")
+                .body(page);
+        }
+
+        pub async fn item_delete(
+            item_id: web::Path<i32>,
+            pool: web::Data<DbPool>,
+            tera: web::Data<Tera>
+        ) -> HttpResponse {
+            let item_info = web::block(move || {
+                use crate::database::schema::equipment_item::dsl::*;
+
+                let mut connection = pool.get()
+                    .expect("Could not get connection from pool!");
+
+                return equipment_item
+                    .filter(id.eq(item_id.clone()))
+                    .first::<EquipmentItem>(&mut connection)
+                    .unwrap();
+
+            }).await.unwrap();
+
+            let mut context = Context::new();
+            context.insert("item", &item_info);
+
+            let page = tera.render(
+                "fragments/warehouse/item-delete.html",
+                &context).unwrap();
+
+            return HttpResponse::Ok()
+                .content_type("text/html")
+                .body(page);
+        }
+
+        pub async fn select_item_for_type(
+            type_id: web::Path<i32>,
+            pool: web::Data<DbPool>,
+            tera: web::Data<Tera>
+        ) -> HttpResponse {
+            let arg_type_id = type_id.clone();
+
+            let items = web::block(move || {
+                use crate::database::schema::equipment_item::dsl::*;
+
+                let mut connection = pool.get()
+                    .expect("Could not get connection from pool!");
+
+                return equipment_item
+                    .filter(type_id.eq(arg_type_id.clone()))
+                    .load::<EquipmentItem>(&mut connection)
+                    .unwrap();
+
+            }).await.unwrap();
+
+            let mut context = Context::new();
+            context.insert("items", &items);
+
+            let page = tera.render(
+                "fragments/warehouse/item-list.html",
+                &context).unwrap();
+
+            return HttpResponse::Ok()
+                .content_type("text/html")
+                .body(page);
+        }
+    }
+
+    pub mod store {
+        use diesel::dsl::update;
+        use diesel::{delete, insert_into};
+
+        use crate::handlers::prelude::*;
+        use crate::database::database::DbPool;
+
+        #[derive(Deserialize, Serialize)]
+        pub struct TypeCreateBody {
+            name: String
+        }
+
+        pub async fn type_create(
+            body: web::Form<TypeCreateBody>,
+            pool: web::Data<DbPool>,
+            tera: web::Data<Tera>
+        ) -> HttpResponse {
+            let result = web::block(move || {
+                use crate::database::schema::equipment_type::dsl::*;
+
+                let mut connection = pool.get()
+                    .expect("Could not get connection from pool!");
+
+                return insert_into(equipment_type)
+                    .values(name.eq(&body.name))
+                    .execute(&mut connection);
+
+            }).await.unwrap();
+
+            let mut context = Context::new();
+            let page = match result {
+                Ok(_) => {
+                    context.insert("success", "Insert operation succeeded.");
+                    tera.render("fragments/success.html", &context).unwrap()
+                }
+
+                Err(_) => {
+                    context.insert("error", "Insert operation failed.");
+                    tera.render("fragments/error.html", &context).unwrap()
+                }
+            };
+
+            match result {
+                Ok(_) => HttpResponse::Ok()
+                    .append_header(("HX-Trigger", "equipmentTypesChanged"))
+                    .content_type("text/html")
+                    .body(page),
+
+                Err(_) => HttpResponse::UnprocessableEntity()
+                    .content_type("text/html")
+                    .body(page),
+            }
+        }
+
+        #[derive(Deserialize, Serialize)]
+        pub struct TypeDeleteBody {
+            id: i32
+        }
+
+        pub async fn type_delete(
+            body: web::Form<TypeDeleteBody>,
+            pool: web::Data<DbPool>,
+            tera: web::Data<Tera>
+        ) -> HttpResponse {
+            let result = web::block(move || {
+                use crate::database::schema::equipment_type::dsl::*;
+
+                let mut connection = pool.get()
+                    .expect("Could not get connection from pool!");
+
+                return delete(equipment_type)
+                    .filter(id.eq(&body.id))
+                    .execute(&mut connection);
+
+            }).await.unwrap();
+
+            let mut context = Context::new();
+            let page = match result {
+                Ok(_) => {
+                    context.insert("success", "Type delete operation succeeded.");
+                    tera.render("fragments/success.html", &context).unwrap()
+                }
+
+                Err(_) => {
+                    context.insert("error", "Type delete operation failed.");
+                    tera.render("fragments/error.html", &context).unwrap()
+                }
+            };
+
+            match result {
+                Ok(_) => HttpResponse::Ok()
+                    .append_header(("HX-Trigger", "equipmentTypesChanged"))
+                    .content_type("text/html")
+                    .body(page),
+
+                Err(_) => HttpResponse::UnprocessableEntity()
+                    .content_type("text/html")
+                    .body(page),
+            }
+        }
+
+        #[derive(Deserialize, Serialize)]
+        pub struct TypeUpdateBody {
+            id: i32,
+            name: String
+        }
+
+        pub async fn type_update(
+            body: web::Form<TypeUpdateBody>,
+            pool: web::Data<DbPool>,
+            tera: web::Data<Tera>
+        ) -> HttpResponse {
+            let result = web::block(move || {
+                use crate::database::schema::equipment_type::dsl::*;
+
+                let mut connection = pool.get()
+                    .expect("Could not get connection from pool!");
+
+                return update(equipment_type)
+                    .filter(id.eq(&body.id))
+                    .set(name.eq(&body.name))
+                    .execute(&mut connection);
+
+            }).await.unwrap();
+
+            let mut context = Context::new();
+            let page = match result {
+                Ok(_) => {
+                    context.insert("success", "Type update operation succeeded.");
+                    tera.render("fragments/success.html", &context).unwrap()
+                }
+
+                Err(_) => {
+                    context.insert("error", "Type update operation failed.");
+                    tera.render("fragments/error.html", &context).unwrap()
+                }
+            };
+
+            match result {
+                Ok(_) => HttpResponse::Ok()
+                    .append_header(("HX-Trigger", "equipmentTypesChanged"))
+                    .content_type("text/html")
+                    .body(page),
+
+                Err(_) => HttpResponse::UnprocessableEntity()
+                    .content_type("text/html")
+                    .body(page),
+            }
+        }
+
+        #[derive(Deserialize, Serialize)]
+        pub struct ItemCreateBody {
+            type_id: i32,
+            serial: String
+        }
+
+        pub async fn item_create(
+            body: web::Form<ItemCreateBody>,
+            pool: web::Data<DbPool>,
+            tera: web::Data<Tera>
+        ) -> HttpResponse {
+            let result = web::block(move || {
+                use crate::database::schema::equipment_item::dsl::*;
+
+                let mut connection = pool.get()
+                    .expect("Could not get connection from pool!");
+
+                return insert_into(equipment_item)
+                    .values((type_id.eq(&body.type_id),
+                            serial.eq(&body.serial)))
+                    .execute(&mut connection);
+
+            }).await.unwrap();
+
+            let mut context = Context::new();
+            let page = match result {
+                Ok(_) => {
+                    context.insert("success", "Item was created.");
+                    tera.render("fragments/success.html", &context).unwrap()
+                }
+
+                Err(_) => {
+                    context.insert("error", "Item could not be created.");
+                    tera.render("fragments/error.html", &context).unwrap()
+                }
+            };
+
+            match result {
+                Ok(_) => HttpResponse::Ok()
+                    .append_header(("HX-Trigger", "equipmentItemsChanged"))
+                    .content_type("text/html")
+                    .body(page),
+
+                Err(_) => HttpResponse::UnprocessableEntity()
+                    .content_type("text/html")
+                    .body(page),
+            }
+        }
+
+        #[derive(Deserialize, Serialize)]
+        pub struct ItemUpdateBody {
+            id: i32,
+            serial: String,
+        }
+
+        pub async fn item_update(
+            body: web::Form<ItemUpdateBody>,
+            pool: web::Data<DbPool>,
+            tera: web::Data<Tera>
+        ) -> HttpResponse {
+            let result = web::block(move || {
+                use crate::database::schema::equipment_item::dsl::*;
+
+                let mut connection = pool.get()
+                    .expect("Could not get connection from pool!");
+
+                return update(equipment_item)
+                    .filter(id.eq(&body.id))
+                    .set(serial.eq(&body.serial))
+                    .execute(&mut connection);
+
+            }).await.unwrap();
+
+            let mut context = Context::new();
+            let page = match result {
+                Ok(_) => {
+                    context.insert("success", "Item was updated.");
+                    tera.render("fragments/success.html", &context).unwrap()
+                }
+
+                Err(_) => {
+                    context.insert("error", "Item could not be updated.");
+                    tera.render("fragments/error.html", &context).unwrap()
+                }
+            };
+
+            match result {
+                Ok(_) => HttpResponse::Ok()
+                    .append_header(("HX-Trigger", "equipmentItemsChanged"))
+                    .content_type("text/html")
+                    .body(page),
+
+                Err(_) => HttpResponse::UnprocessableEntity()
+                    .content_type("text/html")
+                    .body(page),
+            }
+        }
+
+        #[derive(Deserialize, Serialize)]
+        pub struct ItemDeleteBody {
+            id: i32,
+        }
+
+        pub async fn item_delete(
+            body: web::Form<ItemDeleteBody>,
+            pool: web::Data<DbPool>,
+            tera: web::Data<Tera>
+        ) -> HttpResponse {
+            let result = web::block(move || {
+                use crate::database::schema::equipment_item::dsl::*;
+
+                let mut connection = pool.get()
+                    .expect("Could not get connection from pool!");
+
+                return delete(equipment_item)
+                    .filter(id.eq(&body.id))
+                    .execute(&mut connection);
+
+            }).await.unwrap();
+
+            let mut context = Context::new();
+            let page = match result {
+                Ok(_) => {
+                    context.insert("success", "Item was deleted.");
+                    tera.render("fragments/success.html", &context).unwrap()
+                }
+
+                Err(_) => {
+                    context.insert("error", "Item could not be deleted.");
+                    tera.render("fragments/error.html", &context).unwrap()
+                }
+            };
+
+            match result {
+                Ok(_) => HttpResponse::Ok()
+                    .append_header(("HX-Trigger", "equipmentItemsChanged"))
+                    .content_type("text/html")
+                    .body(page),
+
+                Err(_) => HttpResponse::UnprocessableEntity()
+                    .content_type("text/html")
+                    .body(page),
+            }
+        }
     }
 }
-
-#[allow(dead_code)]
-#[derive(Serialize, Deserialize, Debug)]
-struct EquipmentItemDeletion {
-    id: i32,
-}
-
-#[post("/equipment-item/delete")]
-async fn delete_equipment_item(
-    form: web::Form<EquipmentItemDeletion>,
-    data: web::Data<AppState>
-) -> HttpResponse {
-    let result = web::block(move || {
-        let mut connection = establish_connection();
-        use schema::equipment_item::dsl::*;
-
-        delete(equipment_item)
-            .filter(id.eq(&form.id))
-            .execute(&mut connection)
-    }).await.unwrap();
-
-    let mut context = Context::new();
-    let page = match result {
-        Ok(_) => {
-            context.insert("success", "Item was deleted.");
-            data.tera.render("partials/success.html", &context).unwrap()
-        }
-
-        Err(_) => {
-            context.insert("error", "Item could not be deleted.");
-            data.tera.render("partials/error.html", &context).unwrap()
-        }
-    };
-
-    match result {
-        Ok(_) => HttpResponse::Ok()
-            .append_header(("HX-Trigger", "equipmentItemsChanged"))
-            .content_type("text/html")
-            .body(page),
-
-        Err(_) => HttpResponse::UnprocessableEntity()
-            .content_type("text/html")
-            .body(page),
-    }
-}
-
-#[allow(dead_code)]
-#[derive(Serialize, Deserialize)]
-struct EquipmentTypeForm {
-    type_name: String,
-}
-
-#[post("/equipment-type/new")]
-async fn create_equipment_type(
-    form: web::Form<EquipmentTypeForm>,
-    data: web::Data<AppState>
-) -> HttpResponse {
-    let result = web::block(move || {
-        use schema::equipment_type::dsl::*;
-
-        let mut connection = establish_connection();
-
-        insert_into(equipment_type)
-            .values(name.eq(&form.type_name))
-            .execute(&mut connection)
-
-    }).await.unwrap();
-
-    let mut context = Context::new();
-    let page = match result {
-        Ok(_) => {
-            context.insert("success", "Insert operation succeeded.");
-            data.tera.render("partials/success.html", &context).unwrap()
-        }
-
-        Err(_) => {
-            context.insert("error", "Insert operation failed.");
-            data.tera.render("partials/error.html", &context).unwrap()
-        }
-    };
-
-    match result {
-        Ok(_) => HttpResponse::Ok()
-            .append_header(("HX-Trigger", "equipmentTypesChanged"))
-            .content_type("text/html")
-            .body(page),
-
-        Err(_) => HttpResponse::UnprocessableEntity()
-            .content_type("text/html")
-            .body(page),
-    }
-}
-
-#[allow(dead_code)]
-#[derive(Serialize, Deserialize, Debug)]
-struct EquipmentItemForm {
-    type_id: i32,
-    serial: String,
-}
-
-#[post("/equipment-item/new")]
-async fn create_equipment_item(
-    form: web::Form<EquipmentItemForm>,
-    data: web::Data<AppState>
-) -> HttpResponse {
-    let result = web::block(move || {
-        use schema::equipment_item::dsl::*;
-
-        let mut connection = establish_connection();
-
-        insert_into(equipment_item)
-            .values((serial.eq(&form.serial), type_id.eq(&form.type_id)))
-            .execute(&mut connection)
-
-    }).await.unwrap();
-
-    let mut context = Context::new();
-    let page = match result {
-        Ok(_) => {
-            context.insert("success", "Insert operation succeeded.");
-            data.tera.render("partials/success.html", &context).unwrap()
-        }
-
-        Err(_) => {
-            context.insert("error", "Insert operation failed.");
-            data.tera.render("partials/error.html", &context).unwrap()
-        }
-    };
-
-    match result {
-        Ok(_) => HttpResponse::Ok()
-            .append_header(("HX-Trigger", "equipmentTypesChanged"))
-            .content_type("text/html")
-            .body(page),
-
-        Err(_) => HttpResponse::UnprocessableEntity()
-            .content_type("text/html")
-            .body(page),
-    }
-}
-
-#[allow(dead_code)]
-#[derive(Serialize, Deserialize, Debug)]
-struct EquipmentItemUpdate {
-    item_id: i32,
-    serial: String,
-}
-
-#[post("/equipment-item/update")]
-async fn update_equipment_item(
-    form: web::Form<EquipmentItemUpdate>,
-    data: web::Data<AppState>
-) -> HttpResponse {
-    let result = web::block(move || {
-        let mut connection = establish_connection();
-        use schema::equipment_item::dsl::*;
-
-        return update(equipment_item.filter(id.eq(&form.item_id)))
-            .set(serial.eq(&form.serial))
-            .execute(&mut connection);
-    }).await.unwrap();
-
-    let mut context = Context::new();
-    let page = match result {
-        Ok(_) => {
-            context.insert("success", "Update succeeded.");
-            data.tera.render("partials/success.html", &context).unwrap()
-        }
-
-        Err(_) => {
-            context.insert("error", "Update failed.");
-            data.tera.render("partials/error.html", &context).unwrap()
-        }
-    };
-
-    match result {
-        Ok(_) => HttpResponse::Ok()
-            .append_header(("HX-Trigger", "equipmentItemsChanged"))
-            .content_type("text/html")
-            .body(page),
-
-        Err(_) => HttpResponse::UnprocessableEntity()
-            .content_type("text/html")
-            .body(page),
-    }
-}
-
-//
-// Actions
-//

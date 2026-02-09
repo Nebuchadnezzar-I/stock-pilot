@@ -4,45 +4,48 @@
     <link rel="stylesheet" href="static/css/warehouse.css">
 {% endblock header %}
 
-
 {% block navigation %}
     {% set location = "warehouse" -%}
-    {% include "partials/navigation.html" %}
+    {% include "fragments/navigation.html" %}
 {% endblock navigation %}
 
 {% block content %}
-<div class="warehouse-layout">
-    <div class="left-section" id="left-section">
-        <div class="search">
-            <input
-                name="query"
-                class="common-input"
-                placeholder="Search types"
-                hx-get="warehouse/equipment-types"
-                hx-trigger="keyup changed delay:300ms"
-                hx-target="#type-list"
-                hx-swap="innerHTML"/>
+<div class="warehouse">
+    <div id="primary" class="primary">
 
-            <button
-                class="common-button"
-                hx-get="/warehouse/equipment-type/new"
-                hx-target="#right-section"
-                hx-swap="innerHTML"
-            >+</button>
-        </div>
+        <input
+            name="query"
+            placeholder="Search types"
+            hx-get="warehouse/fragment/type-search"
+            hx-trigger="keyup changed delay:300ms"
+            hx-target="#type-list"
+            hx-swap="innerHTML"
+        />
+
+        <button
+            hx-get="warehouse/fragment/type-new"
+            hx-target="#secondary"
+            hx-swap="innerHTML"
+            class="add background-size-button">
+        +</button>
 
         <div
-            hx-get="warehouse/equipment-types"
+            hx-get="warehouse/fragment/type-search"
             hx-trigger="load, equipmentTypesChanged from:body"
             hx-swap="innerHTML"
-            class="scroll-list"
-            id="type-list">
-            <p class="loading">Loading ...</p>
+            id="type-list"
+            class="type-list">
+            <p class="loading">
+                Loading ...
+            </p>
         </div>
+
     </div>
 
-    <div class="right-section" id="right-section">
-        <p class="nothing-selected">Nothing is selected.</p>
+    <div id="secondary" class="secondary">
+        <p class="nothing-selected">
+            Nothing is selected.
+        </p>
     </div>
 </div>
 {% endblock content %}

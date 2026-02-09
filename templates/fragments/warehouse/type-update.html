@@ -1,0 +1,24 @@
+<form
+    hx-post="warehouse/store/type-update"
+    hx-target="this"
+    hx-swap="outerHTML"
+    class="type-update">
+
+    <div class="header">
+        <input
+            type="hidden"
+            name="id"
+            value="{{ type.id }}" />
+
+        <input
+            required
+            type="text"
+            name="name"
+            value="{{ type.name }}"
+            placeholder="Type name"  />
+    </div>
+
+    <button type="submit" class="background-size-button">
+        Update
+    </button>
+</form>

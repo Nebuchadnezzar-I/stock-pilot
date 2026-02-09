@@ -1,0 +1,24 @@
+{% for item in items %}
+
+<div
+    hx-get="/warehouse/fragment/item-update/{{ item.id }}"
+    hx-target="#secondary"
+    hx-swap="innerHTML"
+    class="name background-size-button">
+    <p>{{ item.serial }}</p>
+</div>
+
+<button
+    hx-get="/warehouse/fragment/item-delete/{{ item.id }}"item-list
+    hx-target="#secondary"
+    hx-swap="innerHTML"
+    class="background-size-button"
+>-</button>
+
+{% else %}
+
+<div class="not-found">
+    No equipment items found.
+</div>
+
+{% endfor %}

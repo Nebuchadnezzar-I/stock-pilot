@@ -1,10 +1,14 @@
 {% extends "index.html" %}
 
+{% block header %}
+    <link rel="stylesheet" href="static/css/orders.css">
+{% endblock header %}
+
 {% block navigation %}
     {% set location = "orders" -%}
-    {% include "partials/navigation.html" %}
+    {% include "fragments/navigation.html" %}
 {% endblock navigation %}
 
 {% block content %}
-<h1>Orders!</h1>
+<p>Orders!</p>
 {% endblock content %}

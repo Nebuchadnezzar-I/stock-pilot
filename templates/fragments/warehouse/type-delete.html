@@ -1,0 +1,15 @@
+<form
+    hx-post="warehouse/store/type-delete"
+    hx-target="this"
+    hx-swap="outerHTML"
+    class="type-delete">
+
+    <div class="header">
+        <p>Are you sure you want to remove type: {{ type.name }}</p>
+        <input type="hidden" name="id" value="{{ type.id }}" />
+    </div>
+
+    <button type="submit" class="background-size-button">
+        Delete
+    </button>
+</form>

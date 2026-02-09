@@ -1,0 +1,48 @@
+.navigation {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    width: 100%;
+    height: 4rem;
+    padding: 0 3rem 0 3rem;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+
+    .title {
+        font-size: 1.125rem;
+        font-weight: bold;
+    }
+
+    .links {
+        display: flex;
+        gap: 1.5rem;
+
+        font-size: 1rem;
+        font-weight: normal;
+    }
+
+    .active {
+        color: var(--foreground);
+    }
+
+    a {
+        color: var(--foreground-secondary);
+        text-decoration: none;
+
+        &:hover {
+            color: var(--foreground);
+        }
+    }
+}
+
+@media (width < 650px) {
+    .navigation {
+        padding: 0 1.5rem 0 1.5rem;
+        flex-direction: column;
+        justify-content: center;
+        align-items: baseline;
+        height: 5rem;
+        gap: 0.5rem;
+    }
+}
