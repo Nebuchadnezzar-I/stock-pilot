@@ -4,15 +4,15 @@
 
         <div class="actions">
             <button
-                class="add background-size-button"
-                hx-get="/warehouse/fragment/item-new/{{ type.id }}"
+                class="add ui-button"
+                hx-get="warehouse/fragment/item-new/{{ type.id }}"
                 hx-target="#type-selection"
                 hx-swap="innerHTML"
             >+</button>
 
             <button
-                class="update background-size-button"
-                hx-get="/warehouse/fragment/type-update/{{ type.id }}"
+                class="update ui-button"
+                hx-get="warehouse/fragment/type-update/{{ type.id }}"
                 hx-target="#type-selection"
                 hx-swap="innerHTML"
             >U</button>

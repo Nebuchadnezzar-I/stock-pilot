@@ -10,5 +10,45 @@
 {% endblock navigation %}
 
 {% block content %}
-<p>Orders!</p>
+
+<main class="orders">
+    <div id="primary" class="primary">
+
+        <input
+            hx-get="orders/fragment/order-search"
+            hx-trigger="keyup changed delay:300ms"
+            hx-target="#order-list"
+            hx-swap="innerHTML"
+            name="query"
+            placeholder="Search orders"
+        />
+
+        <button
+            hx-get="orders/fragment/order-new"
+            hx-target="#secondary"
+            hx-swap="innerHTML"
+            class="add ui-button">
+        +</button>
+
+        <div
+            hx-get="orders/fragment/order-search"
+            hx-trigger="load, ordersChanged from:body"
+            hx-swap="innerHTML"
+            id="order-list"
+            class="order-list">
+            <p class="loading">
+                Loading ...
+            </p>
+        </div>
+    </div>
+
+
+    <div id="secondary" class="secondary">
+        <p class="nothing-selected">
+            Nothing is selected.
+        </p>
+    </div>
+
+</main>
+
 {% endblock content %}

@@ -6,30 +6,6 @@
     --border: oklch(0.23 0.01 250);
 }
 
-* {
-    box-sizing: border-box;
-}
-
-*:focus, *:focus-visible, *:focus-within {
-    background: var(--background);
-}
-
-a, p, h1, h2, h3, h4, h5, h6, input, button {
-    font-family: "Ubuntu Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
-    box-sizing: border-box;
-    margin: 0;
-}
-
-input, button {
-    font-size: 1rem;
-    margin: 0;
-    padding: 0;
-    background: none;
-    border: none;
-    outline: none;
-    color: var(--foreground);
-}
-
 html {
     background: var(--background);
 }
@@ -41,4 +17,47 @@ body {
     margin: 0;
     display: flex;
     flex-direction: column;
+    background: var(--background);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+*:focus, *:focus-visible, *:focus-within {
+    background: var(--background);
+}
+
+a, p, h1, h2, h3, h4, h5, h6, input, button, select {
+    font-family: "Ubuntu Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    box-sizing: border-box;
+    margin: 0;
+}
+
+input, button, select {
+    font-size: 1rem;
+    margin: 0;
+    padding: 0;
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--foreground);
+}
+
+/* Common */
+
+.ui-button {
+    width: 4rem;
+    height: 4rem;
+
+    &:hover {
+        background: var(--border-light);
+    }
+}
+
+.not-found, .loading, .nothing-selected, .success {
+    display: flex;
+    align-items: center;
+    padding-left: 2rem;
+    height: 4rem;
 }

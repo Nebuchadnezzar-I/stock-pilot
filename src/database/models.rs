@@ -1,6 +1,6 @@
-use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 use crate::database::schema::*;
+use diesel::prelude::*;
 
 #[derive(Debug, Queryable, Identifiable, Serialize, Deserialize)]
 #[diesel(table_name = equipment_type)]
@@ -18,14 +18,14 @@ pub struct EquipmentItem {
     pub type_id: i32,
 }
 
-#[derive(Debug, Queryable, Identifiable)]
+#[derive(Debug, Queryable, Identifiable, Serialize, Deserialize)]
 #[diesel(table_name = orders)]
 pub struct Order {
     pub id: i32,
     pub tag: String,
 }
 
-#[derive(Debug, Queryable, Identifiable, Associations)]
+#[derive(Debug, Queryable, Identifiable, Associations, Serialize, Deserialize)]
 #[diesel(table_name = order_line)]
 #[diesel(belongs_to(Order))]
 #[diesel(belongs_to(EquipmentType, foreign_key = equipment_type_id))]
@@ -36,7 +36,7 @@ pub struct OrderLine {
     pub equipment_count: i32,
 }
 
-#[derive(Debug, Queryable, Identifiable, Associations)]
+#[derive(Debug, Queryable, Identifiable, Associations, Serialize, Deserialize)]
 #[diesel(table_name = dispatch_item)]
 #[diesel(belongs_to(OrderLine))]
 #[diesel(belongs_to(EquipmentItem))]

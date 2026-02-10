@@ -10,7 +10,8 @@
 {% endblock navigation %}
 
 {% block content %}
-<div class="warehouse">
+
+<main class="warehouse">
     <div id="primary" class="primary">
 
         <input
@@ -26,7 +27,7 @@
             hx-get="warehouse/fragment/type-new"
             hx-target="#secondary"
             hx-swap="innerHTML"
-            class="add background-size-button">
+            class="add ui-button">
         +</button>
 
         <div
@@ -47,5 +48,7 @@
             Nothing is selected.
         </p>
     </div>
-</div>
+
+</main>
+
 {% endblock content %}

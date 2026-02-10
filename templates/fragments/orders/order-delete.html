@@ -1,0 +1,17 @@
+<form
+    hx-post="orders/store/order-delete"
+    hx-target="this"
+    hx-swap="outerHTML"
+    class="order-delete">
+
+    <div class="header">
+        <p>Are you sure you want to remove order:
+            <span class="tag">{{ order.tag }}</span>
+        </p>
+        <input type="hidden" name="id" value="{{ order.id }}" />
+    </div>
+
+    <button type="submit" class="ui-button">
+        Delete
+    </button>
+</form>

@@ -17,7 +17,7 @@ pub mod admin {
         // use crate::handlers::prelude::*;
     }
 
-    pub mod actions {
+    pub mod store {
         // use crate::handlers::prelude::*;
     }
 }

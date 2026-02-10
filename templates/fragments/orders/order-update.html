@@ -1,21 +1,21 @@
 <form
-    hx-post="warehouse/store/item-update"
+    hx-post="orders/store/order-update"
     hx-target="this"
     hx-swap="outerHTML"
-    class="item-update">
+    class="order-update">
 
     <div class="header">
         <input
             type="hidden"
             name="id"
-            value="{{ item.id }}" />
+            value="{{ order.id }}" />
 
         <input
             required
             type="text"
-            name="serial"
-            value="{{ item.serial }}"
-            placeholder="Item name"  />
+            name="tag"
+            value="{{ order.tag }}"
+            placeholder="Order tag"  />
     </div>
 
     <button type="submit" class="ui-button">

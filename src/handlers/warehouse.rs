@@ -14,7 +14,8 @@ pub mod warehouse {
 
     pub mod fragments {
         use crate::handlers::prelude::*;
-        use crate::database::{database::DbPool, models::{EquipmentType, EquipmentItem}};
+        use crate::database::models::*;
+        use crate::database::database::DbPool;
 
         #[derive(Deserialize, Serialize)]
         pub struct SearchQuery {
@@ -270,11 +271,10 @@ pub mod warehouse {
     }
 
     pub mod store {
-        use diesel::dsl::update;
-        use diesel::{delete, insert_into};
-
         use crate::handlers::prelude::*;
         use crate::database::database::DbPool;
+        use diesel::{delete, insert_into};
+        use diesel::dsl::update;
 
         #[derive(Deserialize, Serialize)]
         pub struct TypeCreateBody {
@@ -301,12 +301,12 @@ pub mod warehouse {
             let mut context = Context::new();
             let page = match result {
                 Ok(_) => {
-                    context.insert("success", "Insert operation succeeded.");
+                    context.insert("success", "Type was created.");
                     tera.render("fragments/success.html", &context).unwrap()
                 }
 
                 Err(_) => {
-                    context.insert("error", "Insert operation failed.");
+                    context.insert("error", "Type could not be created.");
                     tera.render("fragments/error.html", &context).unwrap()
                 }
             };

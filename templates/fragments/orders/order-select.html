@@ -1,0 +1,32 @@
+<div id="order-selection" class="order-selection">
+    <div class="header">
+        <p class="tag">{{ order.tag }}</p>
+
+        <div class="actions">
+
+            <button
+                class="update ui-button"
+                hx-get="orders/fragment/order-update/{{ order.id }}"
+                hx-target="#order-selection"
+                hx-swap="innerHTML"
+            >U</button>
+
+            <select
+                class="stage-select ui-button"
+                name="stage"
+                hx-get="orders/fragment/order-stage/{{ order.id }}"
+                hx-trigger="load, change"
+                hx-target="#selected-stage"
+                hx-swap="innerHTML"
+            >
+                <option value="order">Order</option>
+                <option value="loaded">Loaded</option>
+                <option value="unloaded">Returned</option>
+            </select>
+
+        </div>
+    </div>
+
+    <div id="selected-stage" class="selected-stage">
+    </div>
+</div>

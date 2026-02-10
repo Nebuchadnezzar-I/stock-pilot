@@ -1,0 +1,24 @@
+{% for order in orders %}
+
+<div
+    hx-get="orders/fragment/order-select/{{ order.id }}"
+    hx-target="#secondary"
+    hx-swap="innerHTML"
+    class="tag ui-button">
+    <p>{{ order.tag }}</p>
+</div>
+
+<button
+    hx-get="orders/fragment/order-delete/{{ order.id }}"
+    hx-target="#secondary"
+    hx-swap="innerHTML"
+    class="ui-button">
+-</button>
+
+{% else %}
+
+<div class="not-found">
+    No equipment orders found.
+</div>
+
+{% endfor %}

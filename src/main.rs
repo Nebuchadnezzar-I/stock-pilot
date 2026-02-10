@@ -26,6 +26,33 @@ async fn main() -> std::io::Result<()> {
             .service(
                 web::scope("/orders")
                     .route("", web::get().to(orders::routes::index))
+
+                    .service(web::scope("/fragment")
+                        .guard(guard::Header("HX-Request", "true"))
+                        .route("order-search",
+                            web::get().to(orders::fragments::search))
+                        .route("order-new",
+                            web::get().to(orders::fragments::order_new))
+                        .route("order-delete/{order_id}",
+                            web::get().to(orders::fragments::order_delete))
+                        .route("order-select/{order_id}",
+                            web::get().to(orders::fragments::order_select))
+                        .route("order-update/{order_id}",
+                            web::get().to(orders::fragments::order_update))
+
+                        .route("order-stage/{order_id}",
+                            web::get().to(orders::fragments::order_stage))
+                    )
+
+
+                    .service(web::scope("/store")
+                        .route("order-create",
+                            web::post().to(orders::store::order_create))
+                        .route("order-delete",
+                            web::post().to(orders::store::order_delete))
+                        .route("order-update",
+                            web::post().to(orders::store::order_update))
+                    )
             )
 
             .service(

@@ -1,27 +1,12 @@
 .warehouse {
     display: flex;
     width: 100%;
+    background: var(--background);
 
     .primary, .secondary {
         width: 100%;
         height: 100%;
     }
-}
-
-.background-size-button {
-    width: 4rem;
-    height: 4rem;
-
-    &:hover {
-        background: var(--border-light);
-    }
-}
-
-.not-found, .loading, .nothing-selected, .success {
-    display: flex;
-    align-items: center;
-    padding-left: 2rem;
-    height: 4rem;
 }
 
 .primary {
