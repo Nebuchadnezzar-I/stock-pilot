@@ -14,9 +14,9 @@
             <select
                 class="stage-select ui-button"
                 name="stage"
-                hx-get="orders/fragment/order-stage/{{ order.id }}"
+                hx-get="orders/fragment/entries-for-stage/{{ order.id }}"
                 hx-trigger="load, change"
-                hx-target="#selected-stage"
+                hx-target="#stage-entries"
                 hx-swap="innerHTML"
             >
                 <option value="order">Order</option>
@@ -27,6 +27,6 @@
         </div>
     </div>
 
-    <div id="selected-stage" class="selected-stage">
+    <div id="stage-entries" class="stage-entries">
     </div>
 </div>

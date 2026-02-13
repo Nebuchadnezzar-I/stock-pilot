@@ -42,8 +42,9 @@ async fn main() -> std::io::Result<()> {
 
                         .route("order-stage/{order_id}",
                             web::get().to(orders::fragments::order_stage))
+                        .route("order-stage/order/item-new",
+                            web::get().to(orders::fragments::stage_order_item_new))
                     )
-
 
                     .service(web::scope("/store")
                         .route("order-create",

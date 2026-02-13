@@ -14,6 +14,8 @@ pub mod orders {
     }
 
     pub mod fragments {
+        use diesel::select;
+
         use crate::handlers::prelude::*;
         use crate::database::models::*;
         use crate::database::database::DbPool;
@@ -176,9 +178,9 @@ pub mod orders {
             let stage = query.stage.as_deref().unwrap_or("order");
 
             let path = match stage {
-                "order" => "fragments/orders/stage-items.html",
+                "order" => "fragments/orders/stage-order.html",
                 "loaded" => "fragments/orders/stage-loaded.html",
-                "unloaded" => "fragments/orders/stage-unloaded.html",
+                "unloaded" => "fragments/orders/stage-returned.html",
                 _ => {
                     context.insert("error", "Stage could not be matched");
                     "fragments/error.html"
@@ -187,6 +189,34 @@ pub mod orders {
 
             let page = tera.render(
                 path, &context).unwrap();
+
+            return HttpResponse::Ok()
+                .content_type("text/html")
+                .body(page);
+        }
+
+        pub async fn stage_order_item_new(
+            pool: web::Data<DbPool>,
+            tera: web::Data<Tera>
+        ) -> HttpResponse {
+            let items = web::block(move || {
+                use crate::database::schema::equipment_type::dsl::*;
+
+                let mut connection = pool.get()
+                    .expect("Could not get connection from pool!");
+
+                return equipment_type
+                    .load::<EquipmentType>(&mut connection)
+                    .unwrap();
+
+            }).await.unwrap();
+
+            let mut context = Context::new();
+            context.insert("items", &items);
+
+            let page = tera.render(
+                "fragments/orders/stage-order-item-new.html", 
+                &context).unwrap();
 
             return HttpResponse::Ok()
                 .content_type("text/html")
