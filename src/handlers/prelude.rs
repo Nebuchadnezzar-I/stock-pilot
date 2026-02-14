@@ -1,4 +1,4 @@
-pub use diesel::{RunQueryDsl, TextExpressionMethods, ExpressionMethods, query_dsl::methods::FilterDsl};
+pub use diesel::{RunQueryDsl, QueryDsl, TextExpressionMethods, ExpressionMethods};
 pub use crate::database::database::DbPool;
 pub use diesel::{delete, update, insert_into};
 pub use serde::{Serialize, Deserialize};

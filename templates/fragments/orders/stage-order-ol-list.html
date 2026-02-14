@@ -1,0 +1,29 @@
+<button
+    hx-get="orders/fragment/order-line-new/{{ order_id }}"
+    hx-target="#secondary"
+    hx-swap="innerHTML"
+    class="ui-button new-order-line">
+New order line</button>
+
+{% for order_line in order_lines %}
+
+<div
+    hx-get="orders/fragment/order-line-update/{{ order_line.0.id }}"
+    hx-target="#secondary"
+    hx-swap="innerHTML"
+    class="ol-name ui-button">
+    <p>{{ order_line.1.name }}</p>
+</div>
+
+<div class="ol-amount">
+    <p>{{ order_line.0.equipment_count }}</p>
+</div>
+
+<button
+    hx-get="orders/fragment/order-line-delete/{{ order_id }}/{{ order_line.0.id }}"
+    hx-target="#secondary"
+    hx-swap="innerHTML"
+    class="ol-remove ui-button">
+-</button>
+
+{% endfor %}

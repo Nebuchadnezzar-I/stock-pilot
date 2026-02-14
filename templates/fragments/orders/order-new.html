@@ -2,6 +2,7 @@
     hx-post="orders/store/order-create"
     hx-target="this"
     hx-swap="outerHTML"
+    hx-on::response-error="this.outerHTML = event.detail.xhr.responseText"
     class="order-new">
 
     <div class="header">

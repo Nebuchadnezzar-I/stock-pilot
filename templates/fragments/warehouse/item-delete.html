@@ -2,6 +2,7 @@
     hx-post="warehouse/store/item-delete"
     hx-target="this"
     hx-swap="outerHTML"
+    hx-on::response-error="this.outerHTML = event.detail.xhr.responseText"
     class="item-delete">
 
     <div class="header">

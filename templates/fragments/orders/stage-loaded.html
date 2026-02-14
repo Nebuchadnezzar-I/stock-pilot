@@ -1,3 +1,10 @@
-<div>
-    Loaded items
+<div
+    hx-get="orders/fragment/loaded-lines/{{ order_id }}"
+    hx-trigger="load, ordersChanged from:body"
+    hx-swap="innerHTML"
+    id="loaded-lines-list"
+    class="loaded-lines-list">
+    <p class="loading">
+        Loading ...
+    </p>
 </div>

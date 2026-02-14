@@ -14,7 +14,7 @@
             <select
                 class="stage-select ui-button"
                 name="stage"
-                hx-get="orders/fragment/entries-for-stage/{{ order.id }}"
+                hx-get="orders/fragment/order-stage/{{ order.id }}"
                 hx-trigger="load, change"
                 hx-target="#stage-entries"
                 hx-swap="innerHTML"

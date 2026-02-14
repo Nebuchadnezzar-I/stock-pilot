@@ -1,23 +1,10 @@
-<div class="items item-list">
-
-    <div class="header">
-        <input
-            hx-get="orders/fragment/order-types-search"
-            hx-trigger="keyup changed delay:300ms"
-            hx-target="#order-type-list"
-            hx-swap="innerHTML"
-            name="query"
-            placeholder="Search types"
-        />
-
-        <button
-            hx-get="orders/fragment/stage-item-new"
-            hx-target="#secondary"
-            hx-swap="innerHTML"
-            class="add ui-button">
-        +</button>
-    </div>
-
-    <div id="order-type-list" class="order-types">
-    </div>
+<div
+    hx-get="orders/fragment/order-lines/{{ order_id }}"
+    hx-trigger="load, ordersChanged from:body"
+    hx-swap="innerHTML"
+    id="order-lines-list"
+    class="order-lines-list">
+    <p class="loading">
+        Loading ...
+    </p>
 </div>

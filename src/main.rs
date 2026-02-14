@@ -42,8 +42,19 @@ async fn main() -> std::io::Result<()> {
 
                         .route("order-stage/{order_id}",
                             web::get().to(orders::fragments::order_stage))
-                        .route("order-stage/order/item-new",
-                            web::get().to(orders::fragments::stage_order_item_new))
+                        .route("order-lines/{order_id}",
+                            web::get().to(orders::fragments::order_lines))
+                        .route("order-line-new/{order_id}",
+                            web::get().to(orders::fragments::order_line_new))
+                        .route("order-line-delete/{order_id}/{line_id}",
+                            web::get().to(orders::fragments::order_line_delete))
+                        .route("order-line-update/{line_id}",
+                            web::get().to(orders::fragments::order_line_update))
+
+                        .route("loaded-stage/{order_id}",
+                            web::get().to(orders::fragments::loaded_stage))
+                        .route("loaded-lines/{order_id}",
+                            web::get().to(orders::fragments::loaded_lines))
                     )
 
                     .service(web::scope("/store")
@@ -53,6 +64,12 @@ async fn main() -> std::io::Result<()> {
                             web::post().to(orders::store::order_delete))
                         .route("order-update",
                             web::post().to(orders::store::order_update))
+                        .route("order-line-create",
+                            web::post().to(orders::store::order_line_create))
+                        .route("order-line-delete",
+                            web::post().to(orders::store::order_line_delete))
+                        .route("order-line-update",
+                            web::post().to(orders::store::order_line_update))
                     )
             )
 

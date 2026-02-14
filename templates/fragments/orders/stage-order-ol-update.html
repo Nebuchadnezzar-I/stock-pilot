@@ -1,0 +1,42 @@
+<form
+    hx-post="orders/store/order-line-update"
+    hx-target="this"
+    hx-swap="outerHTML"
+    hx-on::response-error="this.outerHTML = event.detail.xhr.responseText"
+    class="order-line-update">
+
+    <div class="header">
+        <input
+            type="hidden"
+            name="line_id"
+            value="{{ order_line.id }}" />
+
+        <input
+            required
+            placeholder="Equipment type"
+            class="eq-types"
+            value="{{ order_line_eq_type.name }}"
+            list="equipment-types"
+            name="equipment_name" />
+
+        <input
+            required
+            type="number"
+            name="amount"
+            class="amount"
+            value="{{ order_line.equipment_count }}"
+            placeholder="Amount" />
+
+        <datalist id="equipment-types">
+            {% for eq_type in eq_types %}
+            <option value="{{ eq_type.name }}" data-id="{{ eq_type.id }}">
+                {{ eq_type.name }}
+            </option>
+            {% endfor %}
+        </datalist>
+    </div>
+
+    <button type="submit" class="ui-button">
+        Update
+    </button>
+</form>

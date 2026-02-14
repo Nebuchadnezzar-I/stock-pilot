@@ -1,0 +1,19 @@
+{% for line in lines %}
+
+<div
+    hx-get="orders/fragment/order-loaded-item/{{ line.0.id }}"
+    hx-target="#secondary"
+    hx-swap="innerHTML"
+    class="loaded-name ui-button">
+
+    <p>
+        {{ line.1.name }}
+        {% if line.3 is defined and line.3 is not none %}
+            — {{ line.3.serial }}
+        {% endif %}
+    </p>
+
+</div>
+
+{% endfor %}
+

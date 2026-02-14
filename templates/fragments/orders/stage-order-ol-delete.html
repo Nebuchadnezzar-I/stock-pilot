@@ -1,15 +1,16 @@
 <form
-    hx-post="orders/store/order-delete"
+    hx-post="orders/store/order-line-delete"
     hx-target="this"
     hx-swap="outerHTML"
     hx-on::response-error="this.outerHTML = event.detail.xhr.responseText"
-    class="order-delete">
+    class="order-line-delete">
 
     <div class="header">
-        <p>Are you sure you want to remove order:
-            <span class="tag">{{ order.tag }}</span>
+        <p>Are you sure you want to remove order line:
+            <span class="tag">{{ eq_type.1.name }}</span>
         </p>
-        <input type="hidden" name="id" value="{{ order.id }}" />
+
+        <input type="hidden" name="line_id" value="{{ line_id }}" />
     </div>
 
     <button type="submit" class="ui-button">

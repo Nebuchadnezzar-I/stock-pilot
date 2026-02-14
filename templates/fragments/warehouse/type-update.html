@@ -2,6 +2,7 @@
     hx-post="warehouse/store/type-update"
     hx-target="this"
     hx-swap="outerHTML"
+    hx-on::response-error="this.outerHTML = event.detail.xhr.responseText"
     class="type-update">
 
     <div class="header">

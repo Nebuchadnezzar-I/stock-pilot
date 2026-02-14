@@ -2,7 +2,7 @@
 
 diesel::table! {
     dispatch_item (id) {
-        id -> Nullable<Integer>,
+        id -> Integer,
         order_line_id -> Integer,
         equipment_item_id -> Integer,
         loaded_at -> Integer,
